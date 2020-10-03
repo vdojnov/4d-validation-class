@@ -223,4 +223,7 @@ Function showMessages
 	This:C1470.alertErrors()
 	This:C1470.alertWarnings()
 	
+Function alertHello
+	alert("Hello")
+	
 	
