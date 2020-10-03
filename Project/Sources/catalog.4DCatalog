@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE base SYSTEM "http://www.4d.com/dtd/2007/base.dtd" >
+<base name="ValidationClass" uuid="B64C3878E1D233478A8BB55919866F9F" collation_locale="en">
+	<schema name="DEFAULT_SCHEMA"/>
+	<table name="People" uuid="C3D364E612D0994C9170E7F0073AAAF8" id="1">
+		<field name="ID" uuid="9DE9C92E3C91A045A77F14E573E4A0C5" type="4" unique="true" autosequence="true" not_null="true" id="1"/>
+		<field name="email" uuid="E6136B31AD82A14195736DF9A02E96DA" type="10" never_null="true" id="2"/>
+		<field name="name" uuid="5FF3EA4093B5A84880B21A1B4C4B65CE" type="10" never_null="true" id="3"/>
+		<field name="phoneNumber" uuid="1450EF122AD14B43A7563A6FAC182845" type="10" never_null="true" id="4"/>
+		<field name="lastName" uuid="87DBAF32D7B4484DB67EAFEC419E2E3C" type="10" never_null="true" id="5"/>
+		<primary_key field_name="ID" field_uuid="9DE9C92E3C91A045A77F14E573E4A0C5"/>
+		<table_extra output_form="output" input_form="input">
+			<editor_table_info displayable_fields_count="6">
+				<color red="255" green="255" blue="255" alpha="0"/>
+				<coordinates left="40" top="40" width="120" height="167.33203125"/>
+			</editor_table_info>
+		</table_extra>
+	</table>
+	<index kind="regular" unique_keys="true" uuid="A7A98830877D4F4EAB8888D8CE557F46" type="7">
+		<field_ref uuid="9DE9C92E3C91A045A77F14E573E4A0C5" name="ID">
+			<table_ref uuid="C3D364E612D0994C9170E7F0073AAAF8" name="People"/>
+		</field_ref>
+	</index>
+	<base_extra __stringCompHash="icu:63.1.0" __keywordBuildingHash="icu:63.1.0">
+		<journal_file journal_file_enabled="true"/>
+	</base_extra>
+</base>
