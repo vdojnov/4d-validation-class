@@ -1,7 +1,13 @@
 //Class: ValidationClass
+
+//TODO: 
+//1. Check if input is undefined If(undefined)-> addmessage, Else -> go through validation process. This needs to be done for each validation function
+
+
 Class constructor
 	This:C1470.errors:=New collection:C1472
 	This:C1470.warnings:=New collection:C1472
+	This:C1470.allFeilds:=New collection:C1472
 	
 Function validateEmail
 	//isValidEmail(Email, isRequired, Type(Optional))
@@ -9,6 +15,7 @@ Function validateEmail
 	var $regexResult,$0,$2,$isRequired,$result : Boolean
 	$input:=$1
 	$isRequired:=$2
+	
 	If (Count parameters:C259=3)
 		$type:=$3
 	Else 
@@ -18,7 +25,7 @@ Function validateEmail
 	$regex:="(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4"+"][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
 	$regexResult:=This:C1470.validateRegex($input;$regex)
 	This:C1470.addMessage($input;$regexResult;$type;$isRequired)
-	$0:=$result
+	$0:=$regexResult
 	
 Function validatePhoneNumber
 	//isValidPhoneNumber(PhoneNumber, isRequired, Type(Optional))
@@ -34,7 +41,7 @@ Function validatePhoneNumber
 	$regex:="^(?:\\+\\d{1,3}|0\\d{1,3}|00\\d{1,2})?(?:\\s?\\(\\d+\\))?(?:[-\\/\\s.]|\\d)+$"
 	$regexResult:=This:C1470.validateRegex($input;$regex)
 	This:C1470.addMessage($input;$regexResult;$type;$isRequired)
-	$0:=$result
+	$0:=$regexResult
 	
 Function validateName
 	//validateName(Name, isRequired, Type(Optional))
@@ -51,7 +58,7 @@ Function validateName
 	$regex:="^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$"
 	$regexResult:=This:C1470.validateRegex($input;$regex)
 	This:C1470.addMessage($input;$regexResult;$type;$isRequired)
-	$0:=$result
+	$0:=$regexResult
 	
 Function validateIfNumBetween  // Number, date, and time
 	//validateNumberBetween(Input, fromValue, toValue, isRequired, Type)
@@ -60,6 +67,12 @@ Function validateIfNumBetween  // Number, date, and time
 	var $5,$type : Text
 	
 	Case of 
+		: (Count parameters:C259=4)
+			$input:=$1
+			$from:=$2
+			$to:=$3
+			$isRequired:=$4
+			$type:="Number"
 		: (Count parameters:C259=5)
 			$input:=$1
 			$from:=$2
@@ -84,6 +97,12 @@ Function validateIfDateBetween  // Number, date, and time
 	var $5,$type : Text
 	
 	Case of 
+		: (Count parameters:C259=4)
+			$input:=$1
+			$from:=$2
+			$to:=$3
+			$isRequired:=$4
+			$type:="Date"
 		: (Count parameters:C259=5)
 			$input:=$1
 			$from:=$2
@@ -157,7 +176,6 @@ Function addBetweenMessage
 	$type:=$5
 	$isRequired:=$6
 	
-	
 	If ($isRequired)
 		Case of 
 			: (This:C1470.isNotBlank($input)=False:C215)
@@ -214,15 +232,135 @@ Function alertWarnings
 		For each ($message;This:C1470.warnings)
 			$alertMessage:=$alertMessage+String:C10($message.type)+" "+String:C10($message.message)
 			$alertMessage:=$alertMessage+"\n"
-			//alert($a)
 		End for each 
-		ALERT:C41($alertMessage)
+		CONFIRM:C162($alertMessage;"Continue";"Go Back")
 	End if 
 	
 Function showMessages
-	This:C1470.alertErrors()
-	This:C1470.alertWarnings()
+	If (This:C1470.errors.length=0)
+		This:C1470.alertWarnings()
+	Else 
+		This:C1470.alertErrors()
+	End if 
+	
+Function addMandatory
+	var $1,$2,$3 : Text
+	var $obj : Object
+	
+	$obj:=New object:C1471
+	
+	$obj.isRequired:=True:C214
+	
+	Case of 
+		: (Count parameters:C259=2)
+			$obj.validateFor:=$1
+			$obj.value:=$2
+			$obj.customType:=False:C215
+		: (Count parameters:C259=3)
+			$obj.validateFor:=$1
+			$obj.value:=$2
+			$obj.type:=$3
+			$obj.customType:=True:C214
+		: (Count parameters:C259=4)
+			$obj.validateFor:=$1
+			$obj.value:=$2
+			$obj.from:=$3
+			$obj.to:=$4
+			$obj.customType:=False:C215
+		: (Count parameters:C259=5)
+			$obj.validateFor:=$1
+			$obj.value:=$2
+			$obj.from:=$3
+			$obj.to:=$4
+			$obj.type:=$5
+			$obj.customType:=True:C214
+	End case 
+	
+	This:C1470.allFeilds.push($obj)
+	
+Function addNotMandatory
+	var $1,$2,$3 : Text
+	var $obj : Object
+	
+	$obj:=New object:C1471
+	
+	$obj.isRequired:=False:C215
+	
+	Case of 
+		: (Count parameters:C259=2)
+			$obj.validateFor:=$1
+			$obj.value:=$2
+			$obj.customType:=False:C215
+		: (Count parameters:C259=3)
+			$obj.validateFor:=$1
+			$obj.value:=$2
+			$obj.type:=$3
+			$obj.customType:=True:C214
+		: (Count parameters:C259=4)
+			$obj.validateFor:=$1
+			$obj.value:=$2
+			$obj.from:=$3
+			$obj.to:=$4
+			$obj.customType:=False:C215
+		: (Count parameters:C259=5)
+			$obj.validateFor:=$1
+			$obj.value:=$2
+			$obj.from:=$3
+			$obj.to:=$4
+			$obj.type:=$5
+			$obj.customType:=True:C214
+	End case 
+	
+	This:C1470.allFeilds.push($obj)
+	
+Function validate
+	var $fieldObj : Object
+	
+	For each ($fieldObj;This:C1470.allFeilds)
+		This:C1470.validationLoop($fieldObj)
+	End for each 
 	
 	
+Function validationLoop
+	var $fieldObj,$1 : Object
+	$fieldObj:=$1
 	
+	Case of 
+		: (Lowercase:C14($fieldObj.validateFor)="email")
+			
+			If ($fieldObj.customType=True:C214)
+				This:C1470.validateEmail($fieldObj.value;$fieldObj.isRequired;$fieldObj.type)
+			Else 
+				This:C1470.validateEmail($fieldObj.value;$fieldObj.isRequired)
+			End if 
+			
+		: (Lowercase:C14($fieldObj.validateFor)="phonenumber")
+			If ($fieldObj.customType=True:C214)
+				This:C1470.validatePhoneNumber($fieldObj.value;$fieldObj.isRequired;$fieldObj.type)
+			Else 
+				This:C1470.validatePhoneNumber($fieldObj.value;$fieldObj.isRequired)
+			End if 
+			
+		: (Lowercase:C14($fieldObj.validateFor)="Name")
+			If ($fieldObj.customType=True:C214)
+				This:C1470.validateName($fieldObj.value;$fieldObj.isRequired;$field$fieldObj.type)
+			Else 
+				This:C1470.validateName($fieldObj.value;$fieldObj.isRequired)
+			End if 
+		: (Lowercase:C14($fieldObj.validateFor)="numbetween")
+			If ($fieldObj.customType=True:C214)
+				This:C1470.validateIfNumBetween($fieldObj.value;$fieldObj.from;$fieldObj.to;$fieldObj.isRequired;$fieldObj.type)
+			Else 
+				This:C1470.validateIfNumBetween($fieldObj.value;$fieldObj.from;$fieldObj.to;$fieldObj.isRequired)
+			End if 
+			
+		: (Lowercase:C14($fieldObj.validateFor)="datebetween")
+			If ($fieldObj.customType=True:C214)
+				This:C1470.validateIfDateBetween($fieldObj.value;$fieldObj.from;$fieldObj.to;$fieldObj.isRequired;$fieldObj.type)
+			Else 
+				This:C1470.validateIfDateBetween($fieldObj.value;$fieldObj.from;$fieldObj.to;$fieldObj.isRequired)
+			End if 
+	End case 
+	
+	//confirm method
 	
